@@ -1,7 +1,20 @@
 # Morrow order tracking
 
 A responsive order tracking page built with Next.js App Router, React, Tailwind CSS, and TypeScript. The page itself is the customer-facing screen at mobile and desktop widths. It responds to a delayed delivery, a delivered package the customer cannot find, and an order awaiting its first tracking scan. On-track, loading, and connection-error states are included.
+## See live deployment:
 
+
+Open <https://order-tracking-experience.vercel.app/>.
+
+## View each order state
+
+The default page shows a delayed order. The same screen can be opened directly in each state:
+
+- <https://order-tracking-experience.vercel.app/?state=delayed>
+- <https://order-tracking-experience.vercel.app/?state=not-received>
+- <https://order-tracking-experience.vercel.app/?state=pending>
+- <https://order-tracking-experience.vercel.app/?state=on-track>
+- <https://order-tracking-experience.vercel.app//?state=error>
 ## Run locally
 
 ```bash

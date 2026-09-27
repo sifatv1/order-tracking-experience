@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --ink: #183029;
+  --muted: #687771;
+  --line: #e6ebe7;
+  --green: #215d4a;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #f2f5f0;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+button:focus-visible, a:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid #7fbba3;
+  outline-offset: 3px;
+}
+
+.phone-shadow {
+  box-shadow: 0 26px 85px rgba(32, 66, 47, 0.13), 0 3px 12px rgba(32, 66, 47, 0.04);
+}
+
+.status-pattern {
+  background-image: radial-gradient(circle at center, currentColor 1.1px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+.sheet-backdrop { animation: fade-in 180ms ease-out; }
+.sheet-panel { animation: sheet-in 250ms cubic-bezier(.2,.8,.2,1); }
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheet-in { from { transform: translateY(24px); opacity: .7; } to { transform: translateY(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

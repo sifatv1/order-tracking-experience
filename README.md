@@ -1,6 +1,6 @@
 # Morrow order tracking
 
-A mobile-first order tracking screen built with Next.js App Router, React, Tailwind CSS, and TypeScript. The preview controls show how one screen responds to a delayed delivery, a delivered package the customer cannot find, and an order awaiting its first tracking scan. On-track, loading, and connection-error states are included.
+A responsive order tracking page built with Next.js App Router, React, Tailwind CSS, and TypeScript. The page itself is the customer-facing screen at mobile and desktop widths. It responds to a delayed delivery, a delivered package the customer cannot find, and an order awaiting its first tracking scan. On-track, loading, and connection-error states are included.
 
 ## Run locally
 
@@ -10,6 +10,16 @@ npm run dev
 ```
 
 Open <http://localhost:3000>.
+
+## View each order state
+
+The default page shows a delayed order. The same screen can be opened directly in each state:
+
+- <http://localhost:3000/?state=delayed>
+- <http://localhost:3000/?state=not-received>
+- <http://localhost:3000/?state=pending>
+- <http://localhost:3000/?state=on-track>
+- <http://localhost:3000/?state=error>
 
 ## Verify
 

@@ -1,15 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { use, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
-  ArrowDownRight,
   ArrowRight,
   Bell,
   Check,
   CheckCircle2,
-  ChevronDown,
-  ChevronLeft,
   ChevronRight,
   CircleHelp,
   ClipboardList,
@@ -41,7 +38,6 @@ type TimelineItem = {
 
 type Scenario = {
   label: string;
-  sidebarDescription: string;
   icon: LucideIcon;
   tone: Tone;
   eyebrow: string;
@@ -58,7 +54,6 @@ type Scenario = {
 const scenarios: Record<Exclude<ScenarioId, "error">, Scenario> = {
   delayed: {
     label: "Delayed order",
-    sidebarDescription: "Missed the promised window",
     icon: Clock3,
     tone: "amber",
     eyebrow: "DELIVERY UPDATE",
@@ -78,7 +73,6 @@ const scenarios: Record<Exclude<ScenarioId, "error">, Scenario> = {
   },
   "not-received": {
     label: "Delivered, not received",
-    sidebarDescription: "Marked delivered, package missing",
     icon: PackageSearch,
     tone: "rose",
     eyebrow: "DELIVERY ISSUE",
@@ -98,7 +92,6 @@ const scenarios: Record<Exclude<ScenarioId, "error">, Scenario> = {
   },
   pending: {
     label: "Tracking not available",
-    sidebarDescription: "Order placed, awaiting first scan",
     icon: Package,
     tone: "blue",
     eyebrow: "ORDER CONFIRMED",
@@ -118,7 +111,6 @@ const scenarios: Record<Exclude<ScenarioId, "error">, Scenario> = {
   },
   "on-track": {
     label: "On the way",
-    sidebarDescription: "Out for delivery today",
     icon: Truck,
     tone: "green",
     eyebrow: "OUT FOR DELIVERY",
@@ -137,8 +129,6 @@ const scenarios: Record<Exclude<ScenarioId, "error">, Scenario> = {
     ],
   },
 };
-
-const previewOrder: ScenarioId[] = ["delayed", "not-received", "pending", "on-track", "error"];
 
 const toneClasses: Record<Tone, {
   hero: string;
@@ -177,80 +167,15 @@ const toneClasses: Record<Tone, {
   },
 };
 
-function Brand({ compact = false }: { compact?: boolean }) {
+function Brand() {
   return (
     <div className="flex items-center gap-2.5" aria-label="Morrow home">
-      <span className={`${compact ? "h-8 w-8 rounded-[11px]" : "h-10 w-10 rounded-[13px]"} relative inline-flex items-center justify-center bg-[#255f4b] text-white`}>
+      <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-[13px] bg-[#255f4b] text-white">
         <span className="absolute left-[9px] top-[9px] h-[11px] w-[11px] rounded-full bg-[#bfe2bb]" />
         <span className="absolute bottom-[9px] right-[9px] h-[11px] w-[11px] rounded-full bg-white" />
       </span>
-      <span className={`${compact ? "text-[18px]" : "text-[21px]"} font-bold tracking-[-0.07em]`}>morrow<span className="text-[#8fad95]">.</span></span>
+      <span className="text-[21px] font-bold tracking-[-0.07em]">morrow<span className="text-[#8fad95]">.</span></span>
     </div>
-  );
-}
-
-function PreviewSelector({ scenario, onChange }: { scenario: ScenarioId; onChange: (value: ScenarioId) => void }) {
-  return (
-    <>
-      <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[430px] lg:shrink-0 lg:flex-col lg:justify-between lg:py-13">
-        <div>
-          <Brand />
-          <div className="mt-21 max-w-[375px]">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#cadacf] bg-white/65 px-3 py-2 text-[10px] font-bold tracking-[0.19em] text-[#4c7861]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#4f9b72]" /> ORDER EXPERIENCE
-            </div>
-            <h1 className="text-[58px] leading-[1.04] font-bold tracking-[-0.073em] text-[#19392d]">Clarity for every delivery.</h1>
-            <p className="mt-6 max-w-[330px] text-[15px] leading-7 text-[#667b6e]">A more reassuring way to follow an order, understand what changed, and know what to do next.</p>
-          </div>
-          <div className="mt-10 w-[370px] rounded-[24px] border border-[#e1e9df] bg-white/80 p-2.5 shadow-[0_12px_35px_rgba(50,85,57,.05)]">
-            <p className="px-3.5 pb-2 pt-2 text-[10px] font-bold tracking-[0.17em] text-[#829589]">PREVIEW A SCENARIO</p>
-            {previewOrder.map((id) => {
-              const item = id === "error" ? { label: "Connection error", sidebarDescription: "Could not load updates", icon: WifiOff } : scenarios[id];
-              const Icon = item.icon;
-              const selected = scenario === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => onChange(id)}
-                  aria-pressed={selected}
-                  className={`flex w-full items-center gap-3 rounded-[16px] px-3.5 py-3 text-left transition-colors ${selected ? "bg-[#e9f1e9]" : "hover:bg-[#f6f8f4]"}`}
-                >
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${selected ? "bg-white text-[#2a6a4e]" : "bg-[#f1f5ef] text-[#758d79]"}`}><Icon size={17} strokeWidth={1.9} /></span>
-                  <span className="min-w-0 flex-1">
-                    <span className={`block text-[13px] font-bold ${selected ? "text-[#1e4e37]" : "text-[#334a3b]"}`}>{item.label}</span>
-                    <span className="mt-0.5 block text-[11px] text-[#8b9a8e]">{item.sidebarDescription}</span>
-                  </span>
-                  {selected && <ArrowRight size={15} className="text-[#467d5c]" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 text-[12px] text-[#87998c]"><span className="h-8 w-8 rounded-full border border-[#d5e2d7] bg-[#e9f0e6] flex items-center justify-center"><ArrowDownRight size={16} /></span> Designed for the moments that matter.</div>
-      </aside>
-
-      <div className="border-b border-[#e3eae3] bg-[#f2f5f0] px-5 py-3 lg:hidden">
-        <div className="mx-auto flex max-w-[440px] items-center justify-between gap-3">
-          <span className="text-[10px] font-bold tracking-[0.15em] text-[#728976]">PREVIEW STATE</span>
-          <div className="relative min-w-0">
-            <select
-              aria-label="Preview order state"
-              value={scenario}
-              onChange={(event) => onChange(event.target.value as ScenarioId)}
-              className="w-full max-w-[230px] appearance-none rounded-xl border border-[#d8e3d9] bg-white py-2 pl-3 pr-8 text-[12px] font-bold text-[#2b5b41]"
-            >
-              <option value="delayed">Delayed order</option>
-              <option value="not-received">Delivered, not received</option>
-              <option value="pending">Tracking not available</option>
-              <option value="on-track">On the way</option>
-              <option value="error">Connection error</option>
-            </select>
-            <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#567462]" />
-          </div>
-        </div>
-      </div>
-    </>
   );
 }
 
@@ -268,21 +193,21 @@ function StatusCard({ scenario, reported, notifications, onPrimary }: {
   const buttonLabel = isReported ? "View your report" : isPending ? (notifications ? "Updates are on" : "Notify me when it ships") : isDelayed ? "Get help with this delay" : scenario.label === "On the way" ? "See delivery progress" : "Report a missing package";
 
   return (
-    <section aria-label="Current delivery status" className={`relative overflow-hidden rounded-[25px] border p-5 pb-4 ${tone.hero}`}>
+    <section aria-label="Current delivery status" className={`relative overflow-hidden rounded-[25px] border p-5 pb-4 lg:p-7 ${tone.hero}`}>
       <span aria-hidden="true" className="status-pattern absolute -right-15 -top-14 h-43 w-43 rounded-full opacity-[0.055]" />
       <div className="relative">
         <div className="flex items-start justify-between gap-3">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[9px] font-bold tracking-[0.15em] ${tone.pill}`}><span className="h-1.5 w-1.5 rounded-full bg-current" />{isReported ? "REPORT SAVED" : scenario.eyebrow}</span>
           <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${tone.icon}`}><Icon size={22} strokeWidth={1.8} /></span>
         </div>
-        <h2 className="mt-5 max-w-[290px] text-[26px] leading-[1.12] font-bold tracking-[-0.052em] text-[#19332b]">{isReported ? "We’ve saved your report" : scenario.title}</h2>
-        <p className="mt-2.5 max-w-[330px] text-[13px] leading-[1.55] text-[#536860]">{isReported ? "Your missing package report is saved on this device. You can review it or reach out to support for next steps." : scenario.description}</p>
-        <div className="mt-5 rounded-[18px] border border-white/85 bg-white/75 px-4 py-3.5 shadow-[0_4px_14px_rgba(33,73,48,.035)]">
+        <h2 className="mt-5 max-w-[290px] text-[26px] leading-[1.12] font-bold tracking-[-0.052em] text-[#19332b] lg:max-w-[490px] lg:text-[32px]">{isReported ? "We’ve saved your report" : scenario.title}</h2>
+        <p className="mt-2.5 max-w-[330px] text-[13px] leading-[1.55] text-[#536860] lg:max-w-[500px] lg:text-[14px]">{isReported ? "Your missing package report is saved on this device. You can review it or reach out to support for next steps." : scenario.description}</p>
+        <div className="mt-5 rounded-[18px] border border-white/85 bg-white/75 px-4 py-3.5 shadow-[0_4px_14px_rgba(33,73,48,.035)] lg:max-w-[470px]">
           <div className="flex items-center gap-2 text-[#65786c]"><Clock3 size={14} strokeWidth={2} /><span className="text-[10px] font-bold tracking-[0.08em] uppercase">{scenario.etaLabel}</span></div>
           <p className="mt-1.5 text-[16px] font-bold tracking-[-0.035em] text-[#203b30]">{scenario.etaValue}</p>
           <p className="mt-1 text-[11px] leading-4 text-[#7f8b80]">{scenario.etaNote}</p>
         </div>
-        <button type="button" onClick={onPrimary} className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-[13px] px-4 py-2.5 text-[13px] font-bold text-white transition-colors ${tone.action}`}>
+        <button type="button" onClick={onPrimary} className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-[13px] px-4 py-2.5 text-[13px] font-bold text-white transition-colors lg:w-auto lg:min-w-[250px] ${tone.action}`}>
           {isPending ? <Bell size={16} /> : isReported ? <ClipboardList size={16} /> : scenario.label === "On the way" ? <Truck size={16} /> : <MessageCircle size={16} />}
           {buttonLabel}
           {!isPending && <ArrowRight size={15} />}
@@ -394,8 +319,10 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   return <div className="flex justify-between gap-4 py-2.5 text-[12px]"><span className="text-[#86968a]">{label}</span><span className="text-right font-bold text-[#2d4635]">{value}</span></div>;
 }
 
-export default function Page() {
-  const [scenarioId, setScenarioId] = useState<ScenarioId>("delayed");
+export default function Page({ searchParams }: { searchParams: Promise<{ state?: string | string[] }> }) {
+  const requestedState = use(searchParams).state;
+  const initialScenario: ScenarioId = requestedState === "not-received" || requestedState === "pending" || requestedState === "on-track" || requestedState === "error" ? requestedState : "delayed";
+  const [scenarioId, setScenarioId] = useState<ScenarioId>(initialScenario);
   const [sheet, setSheet] = useState<SheetId>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [reported, setReported] = useState(false);
@@ -408,9 +335,16 @@ export default function Page() {
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const syncStateFromUrl = () => {
+      const state = new URLSearchParams(window.location.search).get("state");
+      if (state === "delayed" || state === "not-received" || state === "pending" || state === "on-track" || state === "error") setScenarioId(state);
+    };
+    syncStateFromUrl();
+    window.addEventListener("popstate", syncStateFromUrl);
     setReported(window.localStorage.getItem("morrow-missing-report") === "true");
     setNotifications(window.localStorage.getItem("morrow-notifications") === "true");
     return () => {
+      window.removeEventListener("popstate", syncStateFromUrl);
       if (toastTimer.current) clearTimeout(toastTimer.current);
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
     };
@@ -422,13 +356,6 @@ export default function Page() {
     toastTimer.current = setTimeout(() => setToast(""), 3200);
   }
 
-  function changeScenario(value: ScenarioId) {
-    setScenarioId(value);
-    setRefreshing(false);
-    setSheet(null);
-    if (refreshTimer.current) clearTimeout(refreshTimer.current);
-  }
-
   function refreshUpdates() {
     if (refreshing) return;
     setRefreshing(true);
@@ -436,6 +363,9 @@ export default function Page() {
       setRefreshing(false);
       if (scenarioId === "error") {
         setScenarioId("on-track");
+        const url = new URL(window.location.href);
+        url.searchParams.set("state", "on-track");
+        window.history.replaceState(null, "", url);
         showToast("Latest updates loaded");
       } else {
         showToast("You’re all caught up");
@@ -480,30 +410,30 @@ export default function Page() {
   const scenario = scenarioId === "error" ? null : scenarios[scenarioId];
 
   return (
-    <div className="min-h-screen lg:bg-[radial-gradient(circle_at_75%_20%,#e4eee5_0%,#f2f5f0_46%,#f6f7f3_100%)]">
-      <div className="mx-auto lg:flex lg:max-w-[1170px] lg:items-start lg:justify-between lg:gap-15 lg:px-8">
-        <PreviewSelector scenario={scenarioId} onChange={changeScenario} />
-        <div className="mx-auto min-h-screen w-full max-w-[440px] bg-[#fbfcfa] lg:my-10 lg:min-h-0 lg:overflow-hidden lg:rounded-[34px] lg:border lg:border-[#e5ebe3] lg:phone-shadow">
-          <main className="px-5 pb-9 pt-5 sm:px-6 lg:pt-6">
-            <header>
-              <div className="flex items-center justify-between">
-                <button type="button" onClick={() => setSheet("orders")} aria-label="View your orders" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e5ebe4] bg-white text-[#42604b] hover:bg-[#f1f5ef]"><ChevronLeft size={20} /></button>
-                <Brand compact />
-                <button type="button" onClick={() => { setSupportTopic("General question"); setSheet("support"); }} aria-label="Contact support" className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e5ebe4] bg-white text-[#42604b] hover:bg-[#f1f5ef]"><CircleHelp size={18} /></button>
-              </div>
-              <div className="mt-7 mb-5">
-                <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.11em] text-[#94a398]"><span>YOUR ORDERS</span><ChevronRight size={12} /><span className="text-[#607a66]">MR-2048</span></div>
-                <div className="mt-2 flex items-end justify-between gap-2">
-                  <div>
-                    <h1 className="text-[27px] leading-tight font-bold tracking-[-0.055em] text-[#1e392b]">Track your order</h1>
-                    <p className="mt-1.5 text-[11px] text-[#8b9a8e]">Order #MR-2048 · 1 item</p>
-                  </div>
-                  <button type="button" onClick={() => setSheet("details")} className="mb-1 shrink-0 text-[11px] font-bold text-[#347255] hover:underline">Details</button>
-                </div>
-              </div>
-            </header>
+    <div className="min-h-screen bg-[#f7f9f6]">
+      <header className="border-b border-[#e6ece6] bg-white">
+        <div className="mx-auto flex max-w-[1120px] items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
+          <Brand />
+          <nav aria-label="Order navigation" className="flex items-center gap-2 sm:gap-3">
+            <button type="button" onClick={() => setSheet("orders")} aria-label="View your orders" className="flex h-10 items-center justify-center gap-2 rounded-full border border-[#e5ebe4] bg-white px-3 text-[12px] font-bold text-[#42604b] hover:bg-[#f1f5ef] sm:px-4"><ClipboardList size={17} /><span className="hidden sm:inline">My orders</span></button>
+            <button type="button" onClick={() => { setSupportTopic("General question"); setSheet("support"); }} aria-label="Contact support" className="flex h-10 items-center justify-center gap-2 rounded-full border border-[#e5ebe4] bg-white px-3 text-[12px] font-bold text-[#42604b] hover:bg-[#f1f5ef] sm:px-4"><CircleHelp size={18} /><span className="hidden sm:inline">Help</span></button>
+          </nav>
+        </div>
+      </header>
+      <main className="mx-auto max-w-[1120px] px-5 pb-14 pt-7 sm:px-8 lg:px-10 lg:pt-11">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex items-center gap-2 text-[10px] font-bold tracking-[0.11em] text-[#94a398]"><button type="button" onClick={() => setSheet("orders")} className="hover:text-[#2b7051]">YOUR ORDERS</button><ChevronRight size={12} /><span className="text-[#607a66]">MR-2048</span></div>
+          <div className="mt-2 flex items-end justify-between gap-2">
+            <div>
+              <h1 className="text-[28px] leading-tight font-bold tracking-[-0.055em] text-[#1e392b] lg:text-[38px]">Track your order</h1>
+              <p className="mt-1.5 text-[12px] text-[#8b9a8e]">Order #MR-2048 · 1 item</p>
+            </div>
+            <button type="button" onClick={() => setSheet("details")} className="mb-1 shrink-0 text-[12px] font-bold text-[#347255] hover:underline">Order details</button>
+          </div>
+        </div>
 
-            <div aria-busy={refreshing} className="space-y-4">
+        <div aria-busy={refreshing} className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(300px,.85fr)] lg:items-start lg:gap-6">
+          <div className="space-y-4">
               {refreshing ? (
                 <>
                   <div role="status" aria-label="Loading tracking updates" className="animate-pulse rounded-[25px] border border-[#e6ece7] bg-[#eef3ec] p-5">
@@ -530,7 +460,8 @@ export default function Page() {
                   <div className="flex items-center justify-between rounded-[18px] border border-[#e4eae4] bg-white px-4 py-3"><div className="flex items-center gap-2 text-[#638270]"><ShieldCheck size={17} /><span className="text-[11px] font-bold">Your order details are safe</span></div><button type="button" onClick={() => setSheet("support")} className="text-[11px] font-bold text-[#2c7653]">Get help</button></div>
                 </>
               )}
-
+          </div>
+          <div className="space-y-4">
               <ProductSummary onDetails={() => setSheet("details")} />
 
               <section className="flex items-center gap-3.5 rounded-[22px] bg-[#eaf2e9] p-4">
@@ -538,11 +469,10 @@ export default function Page() {
                 <div className="min-w-0 flex-1"><h2 className="text-[12px] font-bold text-[#2b4d38]">Need a hand?</h2><p className="mt-1 text-[11px] leading-[1.35] text-[#77907d]">We’re here to help with your delivery.</p></div>
                 <button type="button" onClick={() => { setSupportTopic(scenarioId === "delayed" ? "Delivery delay" : "General question"); setSheet("support"); }} aria-label="Contact support about your delivery" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2b6b50] text-white hover:bg-[#1d533d]"><ArrowRight size={17} /></button>
               </section>
-            </div>
-            <p className="mt-7 text-center text-[10px] text-[#a3afa4]">A little more peace of mind, from checkout to doorstep.</p>
-          </main>
         </div>
-      </div>
+        </div>
+        <p className="mt-8 text-center text-[10px] text-[#a3afa4]">A little more peace of mind, from checkout to doorstep.</p>
+      </main>
 
       {toast && <div role="status" className="fixed bottom-5 left-1/2 z-[60] w-[calc(100%-32px)] max-w-[380px] -translate-x-1/2 rounded-[14px] bg-[#203c2c] px-4 py-3 text-center text-[12px] font-bold text-white shadow-xl">{toast}</div>}
 
@@ -556,7 +486,6 @@ export default function Page() {
         <div className="mt-5 border-b border-[#edf0eb] pb-1"><div className="flex items-center justify-between"><h3 className="text-[12px] font-bold text-[#2d4535]">Order information</h3><button type="button" onClick={copyOrderNumber} aria-label="Copy order number" className="inline-flex items-center gap-1 text-[11px] font-bold text-[#327653]"><Copy size={13} /> Copy ID</button></div><DetailRow label="Order number" value="MR-2048" /><DetailRow label="Placed" value="2 days ago · 10:18 AM" /><DetailRow label="Payment" value="Visa ending in 4242" /></div>
         <div className="mt-4 border-b border-[#edf0eb] pb-1"><h3 className="mb-1 text-[12px] font-bold text-[#2d4535]">Delivery address</h3><p className="py-2 text-[12px] leading-5 text-[#728575]">Alex Morgan<br />120 Willow Street, Apt 4B<br />Portland, OR 97205</p></div>
         <DetailRow label="Subtotal" value="$128.00" /><DetailRow label="Shipping" value="Free" /><div className="border-t border-[#edf0eb]"><DetailRow label="Total" value="$128.00" /></div>
-        <p className="mt-3 text-[10px] leading-4 text-[#9caa9e]">Sample order details for this interface preview.</p>
       </Sheet>}
 
       {sheet === "support" && <Sheet title="Contact support" onClose={() => setSheet(null)}>

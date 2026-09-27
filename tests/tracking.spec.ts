@@ -1,9 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-async function selectScenario(page: import("@playwright/test").Page, scenario: string) {
-  await page.getByRole("combobox", { name: "Preview order state" }).selectOption(scenario);
-}
-
 async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
@@ -13,6 +9,7 @@ test("delayed order makes the missed window and next step clear", async ({ page 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Your order is running late" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Preview order state" })).toHaveCount(0);
   await expect(page.getByText("Tomorrow, 2:00–5:00 PM")).toBeVisible();
   await expect(page.getByText("Originally expected yesterday by 8:00 PM")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Shipped" })).toBeVisible();
@@ -31,8 +28,7 @@ test("delayed order makes the missed window and next step clear", async ({ page 
 
 test("delivered but missing order supports a report and follow-up", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
-  await page.goto("/");
-  await selectScenario(page, "not-received");
+  await page.goto("/?state=not-received");
   await expect(page.getByRole("heading", { name: "Marked delivered, but not there?" })).toBeVisible();
   await expect(page.getByText("Marked delivered today at 3:42 PM")).toBeVisible();
   await expectNoHorizontalOverflow(page);
@@ -52,8 +48,7 @@ test("delivered but missing order supports a report and follow-up", async ({ pag
 
 test("pending tracking offers context, an ETA, and notifications", async ({ page }) => {
   await page.setViewportSize({ width: 430, height: 900 });
-  await page.goto("/");
-  await selectScenario(page, "pending");
+  await page.goto("/?state=pending");
   await expect(page.getByRole("heading", { name: "Tracking is on its way" })).toBeVisible();
   await expect(page.getByText("Waiting for the courier’s first scan")).toBeVisible();
   await expect(page.getByText("In 3 days, 9:00 AM–6:00 PM")).toBeVisible();
@@ -63,7 +58,6 @@ test("pending tracking offers context, an ETA, and notifications", async ({ page
   await page.getByRole("button", { name: "Notify me when it ships" }).click();
   await expect(page.getByRole("button", { name: "Updates are on" })).toBeVisible();
   await page.reload();
-  await selectScenario(page, "pending");
   await expect(page.getByRole("button", { name: "Updates are on" })).toBeVisible();
 });
 
@@ -88,8 +82,7 @@ test("order details, copied ID, and refresh work", async ({ page }) => {
 
 test("connection error recovers without losing order summary", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
-  await selectScenario(page, "error");
+  await page.goto("/?state=error");
   await expect(page.getByRole("heading", { name: "We couldn’t load the latest update" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Your order", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Try again" }).click();
@@ -98,12 +91,17 @@ test("connection error recovers without losing order summary", async ({ page }) 
   await expectNoHorizontalOverflow(page);
 });
 
-test("desktop preview keeps the order screen focused and switches scenarios", async ({ page }) => {
+test("desktop shows the tracking page itself in a responsive two-column layout", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Clarity for every delivery." })).toBeVisible();
-  await page.getByRole("button", { name: /On the way Out for delivery today/ }).click();
+  await page.goto("/?state=on-track");
+  await expect(page.getByRole("heading", { name: "Track your order" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Almost at your door" })).toBeVisible();
+  await expect(page.getByText("PREVIEW A SCENARIO")).toHaveCount(0);
+  const statusBox = await page.getByRole("region", { name: "Current delivery status" }).boundingBox();
+  const summaryBox = await page.getByRole("region", { name: "Your order" }).boundingBox();
+  expect(statusBox).not.toBeNull();
+  expect(summaryBox).not.toBeNull();
+  expect(summaryBox!.x).toBeGreaterThan(statusBox!.x + statusBox!.width);
   await expectNoHorizontalOverflow(page);
   await page.screenshot({ path: "test-results/desktop-on-track.png", fullPage: true });
 });

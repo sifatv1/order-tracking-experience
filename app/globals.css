@@ -27,10 +27,6 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, select:focus-visi
   outline-offset: 3px;
 }
 
-.phone-shadow {
-  box-shadow: 0 26px 85px rgba(32, 66, 47, 0.13), 0 3px 12px rgba(32, 66, 47, 0.04);
-}
-
 .status-pattern {
   background-image: radial-gradient(circle at center, currentColor 1.1px, transparent 1.2px);
   background-size: 18px 18px;
